@@ -15,7 +15,7 @@ def register_new_user_and_return_login_password():
     login_pass = []
 
     email = fake.ascii_free_email()
-    password = fake.city()
+    password = fake.password()
     user_name = fake.first_name()
 
     # собираем тело запроса

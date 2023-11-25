@@ -2,6 +2,10 @@ import allure
 import requests
 from conftest import create_user
 from data import Url, Endpoints
+from faker import Faker
+
+
+fake = Faker("ru_RU")
 
 
 class TestUserLogin:
@@ -25,7 +29,7 @@ class TestUserLogin:
     def test_authorization_with_incorrect_login(self, create_user):
         new_user = create_user
         user_with_incorrect_log = {
-            "email": "cat300@ya.ru",
+            "email": fake.ascii_free_email(),
             "password": new_user[1]
         }
         response = requests.post(f'{Url.URL}{Endpoints.USER_LOGIN}', data=user_with_incorrect_log)
@@ -37,7 +41,7 @@ class TestUserLogin:
         new_user = create_user
         user_with_incorrect_pass = {
             "email": new_user[0],
-            "password": "112233"
+            "password": fake.password()
         }
         response = requests.post(f'{Url.URL}{Endpoints.USER_LOGIN}', data=user_with_incorrect_pass)
         assert (response.status_code == 401 and

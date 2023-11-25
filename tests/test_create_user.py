@@ -3,6 +3,10 @@ import allure
 import requests
 from conftest import create_user
 from data import Url, Endpoints
+from faker import Faker
+
+
+fake = Faker("ru_RU")
 
 
 class TestCreatingUser:
@@ -30,9 +34,9 @@ class TestCreatingUser:
 
     @allure.title('Создание пользователя без заполнения обязательного поля email, пароля или имени')
     @pytest.mark.parametrize('email, password, name', [
-        ['', '11223344', 'cat300'],
-        ['cat300@ya.ru', '', 'cat301'],
-        ['cat300@ya.ru', '11223344', '']
+        ['', fake.password(), fake.first_name()],
+        [fake.ascii_free_email(), '', fake.first_name()],
+        [fake.ascii_free_email(), fake.password(), '']
     ])
     def test_create_user_without_log_or_pass_or_name(self, email, password, name):
         user_without_log_or_pass_or_name = {
