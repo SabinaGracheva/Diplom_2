@@ -1,15 +1,45 @@
+import pytest
 import allure
-
-
-url = 'https://stellarburgers.nomoreparties.site'
+import requests
+from conftest import create_user
+from data import Url, Endpoints
 
 
 class TestCreatingUser:
-    @allure.title('Проверка, что пользователя можно создать')
+    @allure.title('Проверка, что пользователь успешно регистрируется')
     def test_create_new_user(self, create_user_response):
         user = create_user_response
-        assert "accessToken" in user.text
+        email = user.json()['user']['email']
+        name = user.json()['user']['name']
+        access_token = user.json()['accessToken']
+        refresh_token = user.json()['refreshToken']
+        assert user.text == (f'{{"success":true,"user":{{"email":"{email}","name":"{name}"}},'
+                             f'"accessToken":"{access_token}","refreshToken":"{refresh_token}"}}')
+        # для ревьюера - не выполнила проверку по статус коду, потому что он отсутствует в документации
 
-    @allure.title('Проверка, что нельзя создать пользователя, который уже существует')
-    def test_creating_a_registered_user(self):
-        pass
+    @allure.title('Создание пользователя, который уже существует')
+    def test_creating_a_registered_user(self, create_user):
+        new_user = create_user
+        create_second_user = {
+            "email": new_user[0],
+            "password": new_user[1],
+            "name": new_user[2]
+        }
+        response = requests.post(f'{Url.URL}{Endpoints.USER_REGISTRATION}', data=create_second_user)
+        assert response.status_code == 403 and response.text == '{"success":false,"message":"User already exists"}'
+
+    @allure.title('Создание пользователя без заполнения обязательного поля email, пароля или имени')
+    @pytest.mark.parametrize('email, password, name', [
+        ['', '11223344', 'cat300'],
+        ['cat300@ya.ru', '', 'cat301'],
+        ['cat300@ya.ru', '11223344', '']
+    ])
+    def test_create_user_without_log_or_pass_or_name(self, email, password, name):
+        user_without_log_or_pass_or_name = {
+            "email": email,
+            "password": password,
+            "name": name
+        }
+        response = requests.post(f'{Url.URL}{Endpoints.USER_REGISTRATION}', data=user_without_log_or_pass_or_name)
+        assert (response.status_code == 403 and
+                response.text == '{"success":false,"message":"Email, password and name are required fields"}')
