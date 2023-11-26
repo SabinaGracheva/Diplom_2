@@ -50,7 +50,7 @@ class TestUserDataUpdate:
         # для ревьюера - не выполнила проверку по статус коду, потому что он отсутствует в документации
 
     @allure.title('Изменение email пользователя без авторизации')
-    def test_update_user_email_without_authorization_t(self, create_user):
+    def test_update_user_email_without_authorization(self, create_user):
         new_user = create_user
         update_user_email = {
             "email": new_user[0],
