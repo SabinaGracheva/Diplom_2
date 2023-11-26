@@ -69,4 +69,4 @@ class TestUserDataUpdate:
         }
         response = requests.patch(f'{Url.URL}{Endpoints.USER_DATA_UPDATE}', data=update_user_pass)
         assert (response.status_code == 401 and
-                    response.text == '{"success":false,"message":"You should be authorised"}')
+                response.text == '{"success":false,"message":"You should be authorised"}')

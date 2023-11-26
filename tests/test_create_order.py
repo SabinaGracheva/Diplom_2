@@ -19,9 +19,12 @@ class TestCreateOrder:
 
     @allure.title('Создание заказа неавторизованным пользователем')
     def test_successful_create_order_user_without_authorization(self, create_user):
-        ingredients = {"ingredients": ["61c0c5a71d1f82001bdaaa70"]}
+        ingredients = {"ingredients": ["61c0c5a71d1f82001bdaaa6d"]}
         response = requests.post(f'{Url.URL}{Endpoints.ORDER_CREATE}', data=ingredients)
-        assert response.status_code == 200
+        name = response.json()['name']
+        order_number = response.json()['order']['number']
+        assert (response.status_code == 200 and
+                response.text == f'{{"name":"{name}","order":{{"number":{order_number}}},success":true}}')
 
     @allure.title('Создание заказа без ингредиентов')
     def test_create_order_without_ingredients(self, create_user):
